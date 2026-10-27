@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таза KG — Чистый Ош</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .lang-switch {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #2e7d32;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        textarea {
+            resize: vertical;
+            height: 70px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn:active {
+            background-color: #1b5e20;
+        }
+        .btn-geo {
+            background-color: #0288d1;
+            font-size: 13px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            width: 48%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .stat-num {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .stat-lbl {
+            font-size: 12px;
+            color: #666;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .status-Новая { background-color: #e53935; }
+        .status-Впроцессе { background-color: #fb8c00; }
+        .status-Решена { background-color: #43a047; }
+        
+        .issue-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .issue-address {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .issue-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .actions-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .small-btn {
+            padding: 5px 10px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-process { background-color: #fb8c00; }
+        .btn-resolved { background-color: #43a047; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="lang-switch" onclick="toggleLang()" id="langBtn">KG / RU</button>
+        <h1 id="tTitle">Таза KG</h1>
+        <p id="tSlogan">Чистый Ош начинается с нас!</p>
+    </header>
+
+    <!-- Статистика -->
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-num" id="totalCount">0</div>
+            <div class="stat-lbl" id="lTotal">Всего проблем</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" id="resolvedCount">0</div>
+            <div class="stat-lbl" id="lResolved">Решено</div>
+        </div>
+    </div>
+
+    <!-- Форма -->
+    <div class="card">
+        <h2 id="tFormTitle" style="font-size: 17px; margin-bottom: 10px; color: #2e7d32;">Сообщить о мусоре</h2>
+        <form id="reportForm">
+            <div class="form-group">
+                <label id="lLoc">Район, ориентир или GPS</label>
+                <button type="button" class="btn btn-geo" onclick="getLocation()">📍 Определить мое местоположение</button>
+                <input type="text" id="location" placeholder="Например: около парка или координаты" required>
+            </div>
+            <div class="form-group">
+                <label id="lType">Вид мусора</label>
+                <select id="type">
+                    <option value="Пластик и бутылки">Пластик и бутылки</option>
+                    <option value="Бытовой мусор">Бытовой мусор</option>
+                    <option value="Строительный мусор">Строительный мусор</option>
+                    <option value="Другое">Другое</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label id="lPhoto">Фотография мусора</label>
+                <input type="file" id="photoInput" accept="image/*" capture="environment">
+            </div>
+            <div class="form-group">
+                <label id="lDesc">Описание проблемы</label>
+                <textarea id="description" placeholder="Опишите подробнее..." required></textarea>
+            </div>
+            <button type="submit" class="btn" id="tBtnSend">Отправить заявку</button>
+        </form>
+    </div>
+
+    <!-- Список -->
+    <h2 id="tListTitle" style="font-size: 17px; margin-bottom: 10px; color: #2e7d32;">Список проблем</h2>
+    <div id="issuesList"></div>
+
+    <script>
+        let currentLang = 'ru';
+
+        const texts = {
+            ru: {
+                title: "Таза KG", slogan: "Чистый Ош начинается с нас!",
+                total: "Всего проблем", resolved: "Решено",
+                formTitle: "Сообщить о мусоре", loc: "Район, ориентир или GPS",
+                type: "Вид мусора", photo: "Фотография мусора", desc: "Описание проблемы",
+                btnSend: "Отправить заявку", listTitle: "Список проблем", empty: "Пока нет сообщений."
+            },
+            kg: {
+                title: "Таза KG", slogan: "Таза Ош бизден башталат!",
+                total: "Бардык көйгөйлөр", resolved: "Чечилди",
+                formTitle: "Таштанды тууралуу кабарлоо", loc: "Район, белги же GPS",
+                type: "Таштандынын түрү", photo: "Таштандынын сүрөтү", desc: "Көйгөйдүн сүрөттөмөсү",
+                btnSend: "Кабар жөнөтүү", listTitle: "Көйгөйлөр тизмеси", empty: "Азырынча билдирүүлөр жок."
+            }
+        };
+
+        function toggleLang() {
+            currentLang = currentLang === 'ru' ? 'kg' : 'ru';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = texts[currentLang];
+            document.getElementById('tTitle').innerText = t.title;
+            document.getElementById('tSlogan').innerText = t.slogan;
+            document.getElementById('lTotal').innerText = t.total;
+            document.getElementById('lResolved').innerText = t.resolved;
+            document.getElementById('tFormTitle').innerText = t.formTitle;
+            document.getElementById('lLoc').innerText = t.loc;
+            document.getElementById('lType').innerText = t.type;
+            document.getElementById('lPhoto').innerText = t.photo;
+            document.getElementById('lDesc').innerText = t.desc;
+            document.getElementById('tBtnSend').innerText = t.btnSend;
+            document.getElementById('tListTitle').innerText = t.listTitle;
+            renderIssues();
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude.toFixed(5);
+                    const lon = position.coords.longitude.toFixed(5);
+                    document.getElementById('location').value = `GPS: ${lat}, ${lon}`;
+                }, function(error) {
+                    alert("Не удалось определить местоположение. Включите GPS.");
+                });
+            } else {
+                alert("Геолокация не поддерживается вашим браузером.");
+            }
+        }
+
+        const form = document.getElementById('reportForm');
+        const issuesList = document.getElementById('issuesList');
+        let issues = JSON.parse(localStorage.getItem('taza_issues_v4')) || [];
+
+        function renderIssues() {
+            issuesList.innerHTML = '';
+            const t = texts[currentLang];
+
+            document.getElementById('totalCount').innerText = issues.length;
+            const resolvedCount = issues.filter(i => i.status === 'Решена').length;
+            document.getElementById('resolvedCount').innerText = resolvedCount;
+
+            if (issues.length === 0) {
+                issuesList.innerHTML = `<p style="color: #777; font-size: 14px;">${t.empty}</p>`;
+                return;
+            }
+
+            issues.forEach((issue, index) => {
+                let statusText = issue.status;
+                if (currentLang === 'kg') {
+                    if (issue.status === 'Новая') statusText = 'Жаңы';
+                    if (issue.status === 'В процессе') statusText = 'Жаралууда';
+                    if (issue.status === 'Решена') statusText = 'Чечилди';
+                }
+
+                const imgHtml = issue.photo ? `<img src="${issue.photo}" class="issue-img" alt="Фото мусора">` : '';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <span class="badge status-${issue.status.replace(' ', '')}">${statusText}</span>
+                    <div class="issue-title">${issue.type}</div>
+                    <div class="issue-address">📍 ${issue.location}</div>
+                    ${imgHtml}
+                    <p style="font-size: 13px; margin-bottom: 8px;">${issue.description}</p>
+                    <div class="actions-row">
+                        <button class="small-btn btn-process" onclick="changeStatus(${index}, 'В процессе')">В процесс</button>
+                        <button class="small-btn btn-resolved" onclick="changeStatus(${index}, 'Решена')">Решено</button>
+                    </div>
+                `;
+                issuesList.appendChild(card);
+            });
+        }
+
+        function changeStatus(index, newStatus) {
+            issues[index].status = newStatus;
+            localStorage.setItem('taza_issues_v4', JSON.stringify(issues));
+            renderIssues();
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('photoInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    saveIssue(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveIssue(null);
+            }
+        });
+
+        function saveIssue(photoBase64) {
+            const newIssue = {
+                location: document.getElementById('location').value,
+                type: document.getElementById('type').value,
+                description: document.getElementById('description').value,
+                photo: photoBase64,
+                status: 'Новая'
+            };
+            issues.unshift(newIssue);
+            localStorage.setItem('taza_issues_v4', JSON.stringify(issues));
+            form.reset();
+            renderIssues();
+        }
+
+        renderIssues();
+    </script>
+</body>
+</html>
